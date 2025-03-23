@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package windowcaster;
+
+// 客户端请求，可以包含获取窗口列表、渲染命令或停止渲染命令
+message ClientRequest {
+  oneof request {
+    GetWindowList get_window_list = 1;
+    RenderCommand render_command = 2;
+    StopRender stop_render = 3;
+  }
+}
+
+// 服务端响应
+message ServerResponse {
+  Status status = 1;
+  WindowList window_list = 2;
+}
+
+// 状态信息
+message Status {
+  bool success = 1;
+  string message = 2;
+}
+
+// 空消息，仅作为获取窗口列表的触发
+message GetWindowList {}
+
+// 窗口列表，包含若干窗口信息
+message WindowList {
+  repeated WindowInfo windows = 1;
+}
+
+// 窗口信息
+message WindowInfo {
+  uint64 handle = 1;
+  string title = 2;
+  string class_name = 3;
+}
+
+// 渲染命令：指定目标窗口，并携带要渲染的内容（图像或视频帧）
+message RenderCommand {
+  uint64 target_window = 1;
+  oneof content {
+    Image image = 2;
+    Video video = 3;
+  }
+}
+
+// 停止渲染命令：指定需要停止渲染的窗口
+message StopRender {
+  uint64 target_window = 1;
+}
+
+// 图像数据（例如，一帧图片的二进制数据及尺寸）
+message Image {
+  bytes data = 1;
+  uint32 width = 2;
+  uint32 height = 3;
+}
+
+// 视频帧数据（视频帧的二进制数据及尺寸）
+message Video {
+  bytes frame_data = 1;
+  uint32 width = 2;
+  uint32 height = 3;
+}
