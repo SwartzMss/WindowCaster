@@ -2,14 +2,13 @@ use clap::{Parser, Subcommand};
 use std::path::PathBuf;
 
 #[derive(Parser)]
-#[command(name = "windowcaster")]
 #[command(author, version, about, long_about = None)]
 pub struct Cli {
-    /// 服务器地址
+    /// Server IP address
     #[arg(short, long, default_value = "127.0.0.1")]
-    pub host: String,
+    pub ip: String,
 
-    /// 服务器端口
+    /// Server port
     #[arg(short, long, default_value = "12345")]
     pub port: u16,
 
@@ -19,36 +18,34 @@ pub struct Cli {
 
 #[derive(Subcommand)]
 pub enum Commands {
-    /// 列出可用的窗口
+    /// List available windows
     List {
-        /// 按标题过滤窗口
+        /// Filter windows by title
         #[arg(short, long)]
         filter: Option<String>,
 
-        /// 显示详细信息
+        /// Show detailed information
         #[arg(short, long)]
         verbose: bool,
     },
-    /// 渲染图片到指定窗口
+    /// Render image to specified window
     Image {
-        /// 目标窗口句柄（十六进制格式）
+        /// Target window handle (in hexadecimal format)
         #[arg(short, long)]
         hwnd: String,
 
-        /// 图片文件路径
+        /// Image file path
         #[arg(short, long)]
         file: PathBuf,
     },
-    /// 渲染视频到指定窗口
+    /// Render video to specified window
     Video {
-        /// 目标窗口句柄（十六进制格式）
+        /// Target window handle (in hexadecimal format)
         #[arg(short, long)]
         hwnd: String,
 
-        /// 视频文件路径
+        /// Video file path
         #[arg(short, long)]
         file: PathBuf,
     },
-    /// 交互模式
-    Interactive,
-} 
+}

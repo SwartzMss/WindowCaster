@@ -1,5 +1,4 @@
 use serde::{Deserialize, Serialize};
-use colored::*;
 use std::fmt;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -11,23 +10,25 @@ pub struct WindowInfo {
 
 impl fmt::Display for WindowInfo {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        // 不使用 colored，直接打印纯文本
         write!(
             f,
-            "{} [{}] - {}",
-            format!("0x{:X}", self.handle).green(),
-            self.class_name.blue(),
-            self.title.white()
+            "0x{:X} [{}] - {}",
+            self.handle,
+            self.class_name,
+            self.title
         )
     }
 }
 
 impl WindowInfo {
     pub fn display_verbose(&self) -> String {
+        // 同样去掉所有 .white()、.blue() 等调用，改为纯文本
         format!(
-            "窗口句柄: {}\n标题: {}\n类名: {}\n",
-            format!("0x{:X}", self.handle).green(),
-            self.title.white(),
-            self.class_name.blue()
+            "Window Handle: 0x{:X}\nTitle: {}\nClass: {}\n",
+            self.handle,
+            self.title,
+            self.class_name
         )
     }
 }
@@ -59,11 +60,12 @@ impl WindowManager {
             .collect();
 
         if filtered_windows.is_empty() {
-            println!("{}", "没有找到匹配的窗口".yellow());
+            // 同样去除 .yellow()
+            println!("No matching windows found");
             return;
         }
 
-        println!("找到 {} 个窗口:", filtered_windows.len());
+        println!("Found {} windows:", filtered_windows.len());
         for window in filtered_windows {
             if verbose {
                 println!("{}\n", window.display_verbose());
@@ -72,8 +74,4 @@ impl WindowManager {
             }
         }
     }
-
-    pub fn find_window(&self, hwnd: u64) -> Option<&WindowInfo> {
-        self.windows.iter().find(|w| w.handle == hwnd)
-    }
-} 
+}
