@@ -28,6 +28,35 @@
 - `client/`  
   Rust 客户端代码，负责获取目标窗口的句柄、采集窗口显示数据，并将数据发送至服务端。
 
+## 使用说明
+# client.exe
+
+该工具可在指定窗口上渲染图片或视频，并支持通过指定服务器的 IP 地址和端口号进行连接。[默认: 127.0.0.1:12345]
+
+## 1. 列出窗口
+获取当前系统可用窗口及其句柄（十六进制格式）：
+```bash
+client.exe list -i 127.0.0.1 -p 12345
+```
+
+## 2. 渲染图片
+将图片渲染到指定窗口：
+```bash
+client.exe image --hwnd 0x12345678 --file /path/to/image.png -i 127.0.0.1 -p 12345
+```
+
+## 3. 渲染视频
+将视频渲染到指定窗口：
+```bash
+client.exe video --hwnd 0x12345678 --file /path/to/video.mp4 -i 127.0.0.1 -p 12345
+```
+
+# server.exe
+默认端口 12345,也可以指定端口
+```bash
+server.exe [端口号]
+```
+
 [点击观看项目介绍视频](https://www.bilibili.com/video/BV1Tdo4YzEhp)
 
 ## 贡献指南
