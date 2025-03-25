@@ -18,59 +18,49 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v3
 
-      # 安装 vcpkg 并配置 FFmpeg
+      # 1. 安装 vcpkg
       - name: Install vcpkg
+        shell: cmd
         run: |
           git clone https://github.com/microsoft/vcpkg.git
           cd vcpkg
           .\bootstrap-vcpkg.bat -disableMetrics
-        shell: cmd
 
-      - name: Install FFmpeg (Dynamic Link)
+      # 2. 安装 FFmpeg (使用动态链接的 x64-windows triplet)
+      - name: Install FFmpeg
+        shell: cmd
         run: |
           cd vcpkg
-          .\vcpkg.exe install ffmpeg[core]:x64-windows-md
-        shell: cmd
+          .\vcpkg.exe install ffmpeg[core,avcodec,avdevice,avfilter,avformat,swresample,swscale]:x64-windows
 
-      - name: Integrate vcpkg
-        run: |
-          cd vcpkg
-          .\vcpkg.exe integrate install
-        shell: cmd
-
-      # 设置关键环境变量
-      - name: Set build environment
+      # 3. 设置构建环境变量
+      - name: Setup environment
         shell: powershell
         run: |
           $vcpkgRoot = "$env:GITHUB_WORKSPACE\vcpkg"
-          $ffmpegDir = "$vcpkgRoot\installed\x64-windows-md"
+          $ffmpegDir = "$vcpkgRoot\installed\x64-windows"
           
-          # 设置 vcpkg 路径
+          # 设置 vcpkg 相关变量
           echo "VCPKG_ROOT=$vcpkgRoot" >> $Env:GITHUB_ENV
-          
-          # 指定动态链接和 triplet
           echo "VCPKGRS_DYNAMIC=1" >> $Env:GITHUB_ENV
-          echo "VCPKGRS_TRIPLET=x64-windows-md" >> $Env:GITHUB_ENV
+          echo "VCPKGRS_TRIPLET=x64-windows" >> $Env:GITHUB_ENV
           
-          # 直接指定 FFmpeg 路径
+          # 设置 FFmpeg 路径
           echo "FFMPEG_DIR=$ffmpegDir" >> $Env:GITHUB_ENV
           echo "PKG_CONFIG_PATH=$ffmpegDir\lib\pkgconfig" >> $Env:GITHUB_ENV
+          
+          # 将 FFmpeg 的 bin 目录添加到 PATH
           echo "Path=$ffmpegDir\bin;$env:Path" >> $Env:GITHUB_ENV
 
-      # 安装构建工具
-      - name: Install pkg-config
-        run: choco install pkgconfiglite -y
-        shell: powershell
-
-      # 配置 Rust 工具链
-      - name: Install Rust toolchain
+      # 4. 安装 Rust 工具链
+      - name: Install Rust
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
           override: true
-          components: rust-src, rustc-dev, llvm-tools-preview
+          components: rust-src, rustc-dev
 
-      # 构建项目
+      # 5. 构建项目
       - name: Build with Cargo
         working-directory: client
         shell: cmd
