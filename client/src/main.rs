@@ -52,7 +52,7 @@ async fn main() -> Result<()> {
                 window_manager.list_windows(filter.as_deref(), verbose);
             } else if let Some(status_msg) = resp.status.as_ref() {
                 if !status_msg.success {
-                    error!("Failed to get window list: {}", status_msg.message);
+                    error!("Image rendering failed: {}", String::from_utf8_lossy(&status_msg.message));
                 }
             } else {
                 error!("Unexpected server response: neither window_list nor status is set.");
@@ -74,7 +74,7 @@ async fn main() -> Result<()> {
                 if status.success {
                     info!("Image rendering succeeded");
                 } else {
-                    error!("Image rendering failed: {}", status.message);
+                    error!("Image rendering failed: {}", String::from_utf8_lossy(&status.message));
                 }
             } else {
                 error!("Received an unexpected server response (no status)");

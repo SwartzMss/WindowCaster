@@ -56,8 +56,7 @@ impl NetworkClient {
             // Read message length
             let mut len_bytes = [0u8; 4];
             stream.read_exact(&mut len_bytes).await?;
-            let len = u32::from_le_bytes(len_bytes) as usize;
-            
+            let len = u32::from_le_bytes(len_bytes) as usize;      
             // Read message content
             let mut buffer = vec![0u8; len];
             stream.read_exact(&mut buffer).await?;

@@ -57,12 +57,27 @@ bool Renderer::Initialize(HWND targetWindow) {
 		return false;
 	}
 
-	// 将目标窗口置前
+	// 尝试通过 AttachThreadInput 关联当前线程与目标窗口所在线程
+	DWORD currentThreadID = GetCurrentThreadId();
+	DWORD targetThreadID = GetWindowThreadProcessId(targetWindow, nullptr);
+	if (currentThreadID != targetThreadID) {
+		AttachThreadInput(currentThreadID, targetThreadID, TRUE);
+	}
+
 	if (IsIconic(targetWindow)) {
-		// 如果窗口被最小化，先恢复它
 		ShowWindow(targetWindow, SW_RESTORE);
 	}
+
+	// 临时将窗口设置为顶层
+	SetWindowPos(targetWindow, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+	// 尝试将窗口设置为前景窗口
 	SetForegroundWindow(targetWindow);
+	// 恢复窗口为非顶层
+	SetWindowPos(targetWindow, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+
+	if (currentThreadID != targetThreadID) {
+		AttachThreadInput(currentThreadID, targetThreadID, FALSE);
+	}
 
 	std::cout << "渲染器初始化完成，目标窗口: 0x"
 		<< std::hex << reinterpret_cast<uintptr_t>(targetWindow)

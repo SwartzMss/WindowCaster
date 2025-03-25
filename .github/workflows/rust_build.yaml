@@ -2,13 +2,13 @@ name: Rust Build on Windows
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
     paths:
-      - 'client/**'
+      - "client/**"
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
     paths:
-      - 'client/**'
+      - "client/**"
 
 jobs:
   build_rust:
@@ -35,6 +35,11 @@ jobs:
         run: |
           echo "VCPKG_ROOT=$env:GITHUB_WORKSPACE\vcpkg" >> $Env:GITHUB_ENV
           echo "VCPKG_CHAINLOAD_TOOLCHAIN_FILE=$env:GITHUB_WORKSPACE\vcpkg\scripts\buildsystems\vcpkg.cmake" >> $Env:GITHUB_ENV
+        shell: powershell
+
+      - name: Set FFMPEG_DIR environment variable
+        run: |
+          echo "FFMPEG_DIR=$env:GITHUB_WORKSPACE\vcpkg\installed\x64-windows" >> $Env:GITHUB_ENV
         shell: powershell
 
       - name: Install Rust toolchain

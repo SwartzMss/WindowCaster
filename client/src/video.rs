@@ -98,7 +98,7 @@ impl VideoRenderer {
                     let server_response = Protocol::parse_server_response(&response)?;
                     if let Some(status) = server_response.status.as_ref() {
                         if !status.success {
-                            warn!("Failed to render frame {}: {}", frame_index, status.message);
+                            warn!("Failed to render frame {}: {}", frame_index,  String::from_utf8_lossy(&status.message));
                         }
                     } else {
                         warn!("Server response has no status field");

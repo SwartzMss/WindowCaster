@@ -376,7 +376,7 @@ const char descriptor_table_protodef_windowcaster_2eproto[] PROTOBUF_SECTION_VAR
     "e\022$\n\006status\030\001 \001(\0132\024.windowcaster.Status\022"
     "-\n\013window_list\030\002 \001(\0132\030.windowcaster.Wind"
     "owList\"*\n\006Status\022\017\n\007success\030\001 \001(\010\022\017\n\007mes"
-    "sage\030\002 \001(\t\"\017\n\rGetWindowList\"7\n\nWindowLis"
+    "sage\030\002 \001(\014\"\017\n\rGetWindowList\"7\n\nWindowLis"
     "t\022)\n\007windows\030\001 \003(\0132\030.windowcaster.Window"
     "Info\"\?\n\nWindowInfo\022\016\n\006handle\030\001 \001(\004\022\r\n\005ti"
     "tle\030\002 \001(\t\022\022\n\nclass_name\030\003 \001(\t\"}\n\rRenderC"
@@ -1099,7 +1099,7 @@ const char* Status::_InternalParse(
 
 
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<1, 2, 0, 35, 2> Status::_table_ = {
+const ::_pbi::TcParseTable<1, 2, 0, 0, 2> Status::_table_ = {
   {
     0,  // no _has_bits_
     0, // no _extensions_
@@ -1113,8 +1113,8 @@ const ::_pbi::TcParseTable<1, 2, 0, 35, 2> Status::_table_ = {
     &_Status_default_instance_._instance,
     ::_pbi::TcParser::GenericFallback,  // fallback
   }, {{
-    // string message = 2;
-    {::_pbi::TcParser::FastUS1,
+    // bytes message = 2;
+    {::_pbi::TcParser::FastBS1,
      {18, 63, 0, PROTOBUF_FIELD_OFFSET(Status, _impl_.message_)}},
     // bool success = 1;
     {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(Status, _impl_.success_), 63>(),
@@ -1125,15 +1125,12 @@ const ::_pbi::TcParseTable<1, 2, 0, 35, 2> Status::_table_ = {
     // bool success = 1;
     {PROTOBUF_FIELD_OFFSET(Status, _impl_.success_), 0, 0,
     (0 | ::_fl::kFcSingular | ::_fl::kBool)},
-    // string message = 2;
+    // bytes message = 2;
     {PROTOBUF_FIELD_OFFSET(Status, _impl_.message_), 0, 0,
-    (0 | ::_fl::kFcSingular | ::_fl::kUtf8String | ::_fl::kRepAString)},
+    (0 | ::_fl::kFcSingular | ::_fl::kBytes | ::_fl::kRepAString)},
   }},
   // no aux_entries
   {{
-    "\23\0\7\0\0\0\0\0"
-    "windowcaster.Status"
-    "message"
   }},
 };
 
@@ -1151,12 +1148,10 @@ const ::_pbi::TcParseTable<1, 2, 0, 35, 2> Status::_table_ = {
         1, this->_internal_success(), target);
   }
 
-  // string message = 2;
+  // bytes message = 2;
   if (!this->_internal_message().empty()) {
     const std::string& _s = this->_internal_message();
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-        _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "windowcaster.Status.message");
-    target = stream->WriteStringMaybeAliased(2, _s, target);
+    target = stream->WriteBytesMaybeAliased(2, _s, target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -1176,9 +1171,9 @@ const ::_pbi::TcParseTable<1, 2, 0, 35, 2> Status::_table_ = {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // string message = 2;
+  // bytes message = 2;
   if (!this->_internal_message().empty()) {
-    total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
+    total_size += 1 + ::google::protobuf::internal::WireFormatLite::BytesSize(
                                     this->_internal_message());
   }
 
