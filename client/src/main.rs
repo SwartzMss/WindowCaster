@@ -75,7 +75,6 @@ async fn main() -> Result<()> {
             let response = client.receive_message().await?;
             let server_response = Protocol::parse_server_response(&response)?;
 
-            // 这里判断 server_response.status
             if let Some(status) = server_response.status.as_ref() {
                 if status.success {
                     info!("Image rendering succeeded");

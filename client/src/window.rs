@@ -10,7 +10,6 @@ pub struct WindowInfo {
 
 impl fmt::Display for WindowInfo {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        // 不使用 colored，直接打印纯文本
         write!(
             f,
             "0x{:X} [{}] - {}",
@@ -23,7 +22,6 @@ impl fmt::Display for WindowInfo {
 
 impl WindowInfo {
     pub fn display_verbose(&self) -> String {
-        // 同样去掉所有 .white()、.blue() 等调用，改为纯文本
         format!(
             "Window Handle: 0x{:X}\nTitle: {}\nClass: {}\n",
             self.handle,
@@ -60,7 +58,6 @@ impl WindowManager {
             .collect();
 
         if filtered_windows.is_empty() {
-            // 同样去除 .yellow()
             println!("No matching windows found");
             return;
         }
