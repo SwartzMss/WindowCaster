@@ -57,6 +57,13 @@ bool Renderer::Initialize(HWND targetWindow) {
 		return false;
 	}
 
+	// 将目标窗口置前
+	if (IsIconic(targetWindow)) {
+		// 如果窗口被最小化，先恢复它
+		ShowWindow(targetWindow, SW_RESTORE);
+	}
+	SetForegroundWindow(targetWindow);
+
 	std::cout << "渲染器初始化完成，目标窗口: 0x"
 		<< std::hex << reinterpret_cast<uintptr_t>(targetWindow)
 		<< std::dec << std::endl;
@@ -93,7 +100,6 @@ bool Renderer::CreateCompatibleBitmap(size_t width, size_t height) {
 	return true;
 }
 
-// 示例：这里简单将图片数据理解为内存中的一帧 RGB 数据，您可根据实际需求调整
 bool Renderer::RenderImageFrame(const void* imageData, size_t width, size_t height) {
 	if (!windowDC || !memoryDC || !targetWindow) {
 		std::cout << "渲染器未正确初始化" << std::endl;
@@ -102,7 +108,7 @@ bool Renderer::RenderImageFrame(const void* imageData, size_t width, size_t heig
 
 	// 创建或更新兼容位图
 	if (!CreateCompatibleBitmap(width, height)) {
-		std::cout << "创建兼容位图失败" << std::endl;
+		std::cout << "创建兼容位图失败 width = " << width << " ,height = " << height << std::endl;
 		return false;
 	}
 
@@ -116,7 +122,7 @@ bool Renderer::RenderImageFrame(const void* imageData, size_t width, size_t heig
 	bmi.bmiHeader.biCompression = BI_RGB;
 
 	if (!SetDIBits(windowDC, bitmap, 0, height, imageData, &bmi, DIB_RGB_COLORS)) {
-		std::cout << "复制图像数据失败" << std::endl;
+		std::cout << "复制图像数据失败 width = " << width << " ,height = " << height << std::endl;
 		return false;
 	}
 

@@ -31,7 +31,7 @@ pub enum Commands {
     /// Render image to specified window
     Image {
         /// Target window handle (in hexadecimal format)
-        #[arg(short, long)]
+        #[arg(short = 'w', long)]
         hwnd: String,
 
         /// Image file path
@@ -41,7 +41,7 @@ pub enum Commands {
     /// Render video to specified window
     Video {
         /// Target window handle (in hexadecimal format)
-        #[arg(short, long)]
+        #[arg(short = 'w', long)]
         hwnd: String,
 
         /// Video file path

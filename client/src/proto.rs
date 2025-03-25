@@ -16,21 +16,25 @@ impl Protocol {
     }
 
     pub fn create_image_render_request(hwnd: u64, file_path: &Path) -> Result<Vec<u8>> {
-        let image_data = std::fs::read(file_path)
-            .context("Failed to read image file")?;
-
+        let img = image::open(file_path)
+            .context("Failed to open image")?
+            .to_rgb8();
+    
+        let (width, height) = img.dimensions();
+        let rgb_data = img.into_raw();
+    
         let mut image = windowcaster::Image::new();
-        image.data = image_data;
-        image.width = 0;   
-        image.height = 0;
-
+        image.data = rgb_data;
+        image.width = width;
+        image.height = height;
+    
         let mut render_command = windowcaster::RenderCommand::new();
-        render_command.target_window = hwnd; 
+        render_command.target_window = hwnd;
         render_command.set_image(image);
-
+    
         let mut request = windowcaster::ClientRequest::new();
         request.set_render_command(render_command);
-
+    
         Ok(request.write_to_bytes()?)
     }
 
