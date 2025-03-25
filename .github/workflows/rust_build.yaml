@@ -18,6 +18,14 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v3
 
+      - name: Install FFmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg libavutil-dev
+
+      - name: Set PKG_CONFIG_PATH
+        run: echo "PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig" >> $GITHUB_ENV
+
       - name: Cache cargo registry
         uses: actions/cache@v3
         with:
