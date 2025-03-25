@@ -13,51 +13,51 @@ Renderer::Renderer()
 	, currentHeight(0)
 	, gdiplusToken(0) {
 
-	// 初始化 GDI+
+	// Initialize GDI+
 	Gdiplus::GdiplusStartupInput gdiplusStartupInput;
 	auto status = Gdiplus::GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, nullptr);
 	if (status != Gdiplus::Ok) {
-		std::cout << "GDI+ 初始化失败: " << static_cast<int>(status) << std::endl;
-		throw std::runtime_error("GDI+ 初始化失败");
+		std::cout << "GDI+ initialization failed: " << static_cast<int>(status) << std::endl;
+		throw std::runtime_error("GDI+ initialization failed");
 	}
-	std::cout << "渲染器初始化成功" << std::endl;
+	std::cout << "Renderer initialized successfully" << std::endl;
 }
 
 Renderer::~Renderer() {
 	Cleanup();
-	// 关闭 GDI+
+	// Shutdown GDI+
 	if (gdiplusToken != 0) {
 		Gdiplus::GdiplusShutdown(gdiplusToken);
-		std::cout << "GDI+ 已关闭" << std::endl;
+		std::cout << "GDI+ has been shutdown" << std::endl;
 	}
 }
 
 bool Renderer::Initialize(HWND targetWindow) {
 	if (!targetWindow || !IsWindow(targetWindow)) {
-		std::cout << "无效的窗口句柄" << std::endl;
+		std::cout << "Invalid window handle" << std::endl;
 		return false;
 	}
 
 	Cleanup();
 	this->targetWindow = targetWindow;
 
-	// 获取窗口 DC
+	// Get window DC
 	windowDC = GetDC(targetWindow);
 	if (!windowDC) {
-		std::cout << "获取窗口 DC 失败" << std::endl;
+		std::cout << "Failed to get window DC" << std::endl;
 		return false;
 	}
 
-	// 创建内存 DC
+	// Create memory DC
 	memoryDC = CreateCompatibleDC(windowDC);
 	if (!memoryDC) {
-		std::cout << "创建内存 DC 失败" << std::endl;
+		std::cout << "Failed to create memory DC" << std::endl;
 		ReleaseDC(targetWindow, windowDC);
 		windowDC = nullptr;
 		return false;
 	}
 
-	// 尝试通过 AttachThreadInput 关联当前线程与目标窗口所在线程
+	// Attempt to attach the current thread to the target window's thread
 	DWORD currentThreadID = GetCurrentThreadId();
 	DWORD targetThreadID = GetWindowThreadProcessId(targetWindow, nullptr);
 	if (currentThreadID != targetThreadID) {
@@ -68,18 +68,18 @@ bool Renderer::Initialize(HWND targetWindow) {
 		ShowWindow(targetWindow, SW_RESTORE);
 	}
 
-	// 临时将窗口设置为顶层
+	// Temporarily set the window as topmost
 	SetWindowPos(targetWindow, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
-	// 尝试将窗口设置为前景窗口
+	// Attempt to bring the window to the foreground
 	SetForegroundWindow(targetWindow);
-	// 恢复窗口为非顶层
+	// Restore the window to non-topmost
 	SetWindowPos(targetWindow, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 
 	if (currentThreadID != targetThreadID) {
 		AttachThreadInput(currentThreadID, targetThreadID, FALSE);
 	}
 
-	std::cout << "渲染器初始化完成，目标窗口: 0x"
+	std::cout << "Renderer initialization completed, target window: 0x"
 		<< std::hex << reinterpret_cast<uintptr_t>(targetWindow)
 		<< std::dec << std::endl;
 	return true;
@@ -90,24 +90,24 @@ bool Renderer::CreateCompatibleBitmap(size_t width, size_t height) {
 		return false;
 	}
 
-	// 如果尺寸没变且位图已存在，直接返回
+	// If dimensions haven't changed and bitmap already exists, just return
 	if (bitmap && width == currentWidth && height == currentHeight) {
 		return true;
 	}
 
-	// 删除旧的位图
+	// Delete the old bitmap
 	if (bitmap) {
 		DeleteObject(bitmap);
 		bitmap = nullptr;
 	}
 
-	// 创建新的位图
+	// Create a new bitmap
 	bitmap = ::CreateCompatibleBitmap(windowDC, static_cast<int>(width), static_cast<int>(height));
 	if (!bitmap) {
 		return false;
 	}
 
-	// 选择位图到内存 DC
+	// Select the bitmap into the memory DC
 	SelectObject(memoryDC, bitmap);
 	currentWidth = width;
 	currentHeight = height;
@@ -117,41 +117,41 @@ bool Renderer::CreateCompatibleBitmap(size_t width, size_t height) {
 
 bool Renderer::RenderImageFrame(const void* imageData, size_t width, size_t height) {
 	if (!windowDC || !memoryDC || !targetWindow) {
-		std::cout << "渲染器未正确初始化" << std::endl;
+		std::cout << "Renderer not properly initialized" << std::endl;
 		return false;
 	}
 
-	// 创建或更新兼容位图
+	// Create or update the compatible bitmap
 	if (!CreateCompatibleBitmap(width, height)) {
-		std::cout << "创建兼容位图失败 width = " << width << " ,height = " << height << std::endl;
+		std::cout << "Failed to create compatible bitmap, width = " << width << " ,height = " << height << std::endl;
 		return false;
 	}
 
-	// 将 imageData 复制到位图（假设 imageData 为 RGB24 格式）
+	// Copy imageData to bitmap (assuming imageData is in RGB24 format)
 	BITMAPINFO bmi = { 0 };
 	bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
 	bmi.bmiHeader.biWidth = static_cast<LONG>(width);
-	bmi.bmiHeader.biHeight = -static_cast<LONG>(height); // 负值表示自上而下
+	bmi.bmiHeader.biHeight = -static_cast<LONG>(height); // Negative indicates top-down DIB
 	bmi.bmiHeader.biPlanes = 1;
 	bmi.bmiHeader.biBitCount = 24;
 	bmi.bmiHeader.biCompression = BI_RGB;
 
 	if (!SetDIBits(windowDC, bitmap, 0, height, imageData, &bmi, DIB_RGB_COLORS)) {
-		std::cout << "复制图像数据失败 width = " << width << " ,height = " << height << std::endl;
+		std::cout << "Failed to copy image data, width = " << width << " ,height = " << height << std::endl;
 		return false;
 	}
 
-	// 获取窗口客户区大小
+	// Get the client area size of the window
 	RECT rect;
 	GetClientRect(targetWindow, &rect);
 	int windowWidth = rect.right - rect.left;
 	int windowHeight = rect.bottom - rect.top;
 
-	// 设置拉伸模式
+	// Set stretch mode
 	SetStretchBltMode(windowDC, HALFTONE);
 	SetBrushOrgEx(windowDC, 0, 0, nullptr);
 
-	// 将内存 DC 中的图像拉伸绘制到窗口
+	// Stretch-blit the image from memory DC to the window
 	bool success = StretchBlt(
 		windowDC, 0, 0, windowWidth, windowHeight,
 		memoryDC, 0, 0, static_cast<int>(width), static_cast<int>(height),
@@ -159,16 +159,16 @@ bool Renderer::RenderImageFrame(const void* imageData, size_t width, size_t heig
 	) != 0;
 
 	if (success) {
-		std::cout << "图片渲染成功" << std::endl;
+		std::cout << "Image rendered successfully" << std::endl;
 	}
 	else {
-		std::cout << "图片渲染失败" << std::endl;
+		std::cout << "Image rendering failed" << std::endl;
 	}
 	return success;
 }
 
 bool Renderer::RenderVideoFrame(const void* frameData, size_t width, size_t height) {
-	// 此处与 RenderImageFrame 类似，具体实现根据视频帧数据格式确定
+	// This implementation is similar to RenderImageFrame; actual implementation depends on the video frame data format
 	return RenderImageFrame(frameData, width, height);
 }
 
@@ -206,14 +206,14 @@ std::wstring Renderer::StringToWString(const std::string& str) {
 		return std::wstring();
 	}
 
-	// 计算所需的宽字符数
+	// Calculate the number of wide characters required
 	int size = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, nullptr, 0);
 	if (size == 0) {
 		return std::wstring();
 	}
 
-	// 转换字符串
-	std::wstring result(size - 1, 0); // size-1 因为不需要结尾的 null 字符
+	// Convert the string
+	std::wstring result(size - 1, 0); // size-1 because the terminating null is not needed
 	if (MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, &result[0], size) == 0) {
 		return std::wstring();
 	}
