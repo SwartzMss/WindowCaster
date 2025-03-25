@@ -3,7 +3,7 @@ use std::net::SocketAddr;
 use tokio::net::TcpStream;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tracing::{debug, error, info};
-
+use tokio::time::{timeout, Duration};
 pub struct NetworkClient {
     stream: Option<TcpStream>,
     server_addr: SocketAddr,
@@ -23,9 +23,12 @@ impl NetworkClient {
 
     pub async fn connect(&mut self) -> Result<()> {
         info!("Connecting to server {}...", self.server_addr);
-        let stream = TcpStream::connect(self.server_addr)
-            .await
-            .context("Failed to connect to server")?;
+        let stream = timeout(
+            Duration::from_secs(5),
+            TcpStream::connect(self.server_addr)
+        )
+        .await
+        .context("Connection timed out")??;
         
         self.stream = Some(stream);
         info!("Connected to server");

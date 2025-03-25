@@ -17,7 +17,8 @@ use video::VideoRenderer;
 #[tokio::main]
 async fn main() -> Result<()> {
     tracing_subscriber::fmt()
-    .with_max_level(tracing::Level::WARN)
+    .with_max_level(tracing::Level::INFO)
+    .with_ansi(false)
     .init();
 
     let cli = Cli::parse();
@@ -26,19 +27,14 @@ async fn main() -> Result<()> {
 
     let mut window_manager = WindowManager::new();
 
-    info!("BBB");
     match cli.command {
         Commands::List { filter, verbose } => {
             let request = Protocol::create_get_window_list_request()?;
-            info!("AAA");
             client.send_message(&request).await?;
 
             let response = client.receive_message().await?;
-            info!("CC");
             let resp = Protocol::parse_server_response(&response)?;
-            info!("DD");
             if let Some(window_list_msg) = resp.window_list.as_ref() {
-                info!("EE");
                 // window_list_msg 是 WindowList { windows: Vec<WindowInfo> }
                 let converted: Vec<window::WindowInfo> = window_list_msg
                 .windows
@@ -55,7 +51,6 @@ async fn main() -> Result<()> {
             window_manager.update_windows(converted);
                 window_manager.list_windows(filter.as_deref(), verbose);
             } else if let Some(status_msg) = resp.status.as_ref() {
-                // 如果只有 status
                 if !status_msg.success {
                     error!("Failed to get window list: {}", status_msg.message);
                 }
