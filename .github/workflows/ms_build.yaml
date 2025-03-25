@@ -3,8 +3,12 @@ name: Build
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - 'Server/**'
   pull_request:
     branches: [ "main" ]
+    paths:
+      - 'Server/**'
 
 env:
   SOLUTION_FILE_PATH: WindowCaster.sln
