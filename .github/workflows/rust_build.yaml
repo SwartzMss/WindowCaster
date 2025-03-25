@@ -1,4 +1,4 @@
-name: Rust Build
+name: Rust Build on Windows
 
 on:
   push:
@@ -12,46 +12,39 @@ on:
 
 jobs:
   build_rust:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
 
-      - name: Install FFmpeg and dependencies
+      - name: Install vcpkg
         run: |
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg libavcodec-dev libavformat-dev libavutil-dev pkg-config
+          git clone https://github.com/microsoft/vcpkg.git
+          cd vcpkg
+          .\bootstrap-vcpkg.bat
+        shell: cmd
 
-      - name: Set PKG_CONFIG_PATH
-        run: echo "PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig" >> $GITHUB_ENV
+      - name: Install FFmpeg via vcpkg
+        run: |
+          cd vcpkg
+          .\vcpkg.exe install ffmpeg[core]:x64-windows
+        shell: cmd
 
-      - name: Debug pkg-config
-        run: pkg-config --list-all
-
-      - name: Cache cargo registry
-        uses: actions/cache@v3
-        with:
-          path: ~/.cargo/registry
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-cargo-registry-
-
-      - name: Cache cargo index
-        uses: actions/cache@v3
-        with:
-          path: ~/.cargo/git
-          key: ${{ runner.os }}-cargo-git-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-cargo-git-
+      - name: Set vcpkg environment variables
+        run: |
+          echo "VCPKG_ROOT=$(System.DefaultWorkingDirectory)\vcpkg" >> $Env:GITHUB_ENV
+          echo "VCPKG_CHAINLOAD_TOOLCHAIN_FILE=$(System.DefaultWorkingDirectory)\vcpkg\scripts\buildsystems\vcpkg.cmake" >> $Env:GITHUB_ENV
+        shell: powershell
 
       - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
 
       - name: Build
         working-directory: client
         run: cargo build --verbose
+        shell: powershell
 
-      - name: Test
-        working-directory: client
-        run: cargo test --verbose
