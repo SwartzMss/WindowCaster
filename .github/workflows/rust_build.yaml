@@ -33,8 +33,8 @@ jobs:
 
       - name: Set vcpkg environment variables
         run: |
-          echo "VCPKG_ROOT=$(System.DefaultWorkingDirectory)\vcpkg" >> $Env:GITHUB_ENV
-          echo "VCPKG_CHAINLOAD_TOOLCHAIN_FILE=$(System.DefaultWorkingDirectory)\vcpkg\scripts\buildsystems\vcpkg.cmake" >> $Env:GITHUB_ENV
+          echo "VCPKG_ROOT=$env:GITHUB_WORKSPACE\vcpkg" >> $Env:GITHUB_ENV
+          echo "VCPKG_CHAINLOAD_TOOLCHAIN_FILE=$env:GITHUB_WORKSPACE\vcpkg\scripts\buildsystems\vcpkg.cmake" >> $Env:GITHUB_ENV
         shell: powershell
 
       - name: Install Rust toolchain
@@ -47,4 +47,3 @@ jobs:
         working-directory: client
         run: cargo build --verbose
         shell: powershell
-
