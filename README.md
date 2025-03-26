@@ -36,19 +36,19 @@
 ## 1. 列出窗口
 获取当前系统可用窗口及其句柄（十六进制格式）：
 ```bash
-client.exe list -i 127.0.0.1 -p 12345
+client.exe  -i 127.0.0.1 -p 12345 list
 ```
 
 ## 2. 渲染图片
 将图片渲染到指定窗口：
 ```bash
-client.exe image --hwnd 0x12345678 --file /path/to/image.png -i 127.0.0.1 -p 12345
+client.exe -i 127.0.0.1 -p 12345 image --hwnd 0x12345678 --file /path/to/image.png 
 ```
 
 ## 3. 渲染视频
 将视频渲染到指定窗口：
 ```bash
-client.exe video --hwnd 0x12345678 --file /path/to/video.mp4 -i 127.0.0.1 -p 12345
+client.exe -i 127.0.0.1 -p 12345 video --hwnd 0x12345678 --file /path/to/video.mp4 
 ```
 
 # server.exe
